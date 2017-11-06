@@ -1,6 +1,9 @@
 class King
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♔"
+		@w_symbol = "♚"
 	end
 
 	def move
@@ -8,8 +11,11 @@ class King
 end
 
 class Queen
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♕"
+		@w_symbol = "♛"
 	end
 
 	def move
@@ -17,8 +23,11 @@ class Queen
 end
 
 class Rook
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♖"
+		@w_symbol = "♜"
 	end
 
 	def move
@@ -26,8 +35,11 @@ class Rook
 end
 
 class Knight
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♘"
+		@w_symbol = "♞"
 	end
 
 	def move
@@ -35,8 +47,11 @@ class Knight
 end
 
 class Bishop
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♗"
+		@w_symbol = "♝"
 	end
 
 	def move
@@ -44,8 +59,11 @@ class Bishop
 end
 
 class Pawn
+	attr_reader :w_symbol, :b_symbol
 
 	def initialize
+		@b_symbol = "♙"
+		@w_symbol = "♟"
 	end
 
 	def move
