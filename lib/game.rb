@@ -1,11 +1,29 @@
-class ChessGame
+class Chess
+	require_relative 'board'
 
-	def start_game
+	def initialize
+		start
 	end
 
 	private
 
-	def print_game_menu
+	def start
+		print_menu
+		input = get_input
+		input == 1 ? new_game : load_game
+	end
+
+	def print_menu
+		puts "Welcome to Chess!\n\nPlease select a number:\n1) New Game\n2) Load Game"
+	end
+
+	def get_input
+		input = ""
+		until (input == 1 || input == 2)
+			input = gets.chomp.to_i
+			puts "Invalid selection. Please try again:" unless (input == 1 || input == 2)
+		end
+		input
 	end
 
 	def new_game
@@ -14,3 +32,5 @@ class ChessGame
 	def load_game
 	end
 end
+
+game = Chess.new
