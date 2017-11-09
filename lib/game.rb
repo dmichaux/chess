@@ -1,5 +1,6 @@
 class Chess
 	require_relative 'board'
+	require_relative 'player'
 
 	def initialize
 		start
@@ -27,6 +28,9 @@ class Chess
 	end
 
 	def new_game
+		@player1 = Player.new
+		@player2 = Player.new
+		@board = Board.new(@player1.pieces, @player2.pieces)
 	end
 
 	def load_game
