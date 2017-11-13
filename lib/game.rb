@@ -28,8 +28,8 @@ class Chess
 	end
 
 	def new_game
-		@player1 = Player.new
-		@player2 = Player.new
+		@player1 = Player.new("white")
+		@player2 = Player.new("black")
 		@board = Board.new(@player1.pieces, @player2.pieces)
 		@board.print_board
 	end

@@ -9,7 +9,7 @@ class Board
 
 	def print_board
 		squares = place_pieces_on_squares
-		puts "---------------------------------"
+		puts " -------------------------------"
 		puts "| #{squares[[1, 8]]} | #{squares[[2, 8]]} | #{squares[[3, 8]]} | #{squares[[4, 8]]} | #{squares[[5, 8]]} | #{squares[[6, 8]]} | #{squares[[7, 8]]} | #{squares[[8, 8]]} |"
 		puts "|---|---|---|---|---|---|---|---|"
 		puts "| #{squares[[1, 7]]} | #{squares[[2, 7]]} | #{squares[[3, 7]]} | #{squares[[4, 7]]} | #{squares[[5, 7]]} | #{squares[[6, 7]]} | #{squares[[7, 7]]} | #{squares[[8, 7]]} |"
@@ -25,7 +25,7 @@ class Board
 		puts "| #{squares[[1, 2]]} | #{squares[[2, 2]]} | #{squares[[3, 2]]} | #{squares[[4, 2]]} | #{squares[[5, 2]]} | #{squares[[6, 2]]} | #{squares[[7, 2]]} | #{squares[[8, 2]]} |"
 		puts "|---|---|---|---|---|---|---|---|"
 		puts "| #{squares[[1, 1]]} | #{squares[[2, 1]]} | #{squares[[3, 1]]} | #{squares[[4, 1]]} | #{squares[[5, 1]]} | #{squares[[6, 1]]} | #{squares[[7, 1]]} | #{squares[[8, 1]]} |"
-		puts "---------------------------------"
+		puts " -------------------------------"
 	end
 
 	private
@@ -35,6 +35,9 @@ class Board
 		squares.each_key do |key|
 			@p1_pieces.each do |piece|
 				squares[key] = piece.w_symbol if key == piece.location
+			end
+			@p2_pieces.each do |piece|
+				squares[key] = piece.b_symbol if key == piece.location
 			end
 		end
 		squares
