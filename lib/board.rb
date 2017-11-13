@@ -8,6 +8,7 @@ class Board
 	end
 
 	def print_board
+		puts "p1_pieces: #{@p1_pieces}"
 	end
 
 	private

@@ -31,10 +31,11 @@ class Chess
 		@player1 = Player.new
 		@player2 = Player.new
 		@board = Board.new(@player1.pieces, @player2.pieces)
+		@board.print_board
 	end
 
 	def load_game
 	end
 end
 
-# game = Chess.new
+game = Chess.new
