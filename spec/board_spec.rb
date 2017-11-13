@@ -2,6 +2,14 @@ require 'board'
 
 describe 'Board' do
 
+	before do
+		@board = Board.new
+	end
+
+	it 'has 64 squares' do
+		expect(@board.squares.size).to eql(64)
+	end
+
 	describe '.print_board' do
 	end
 
