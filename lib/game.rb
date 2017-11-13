@@ -37,4 +37,4 @@ class Chess
 	end
 end
 
-game = Chess.new
+# game = Chess.new

@@ -3,7 +3,7 @@ require 'board'
 describe 'Board' do
 
 	before do
-		@board = Board.new
+		@board = Board.new("x", "y")
 	end
 
 	it 'has 64 squares' do

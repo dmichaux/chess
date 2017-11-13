@@ -1,8 +1,10 @@
 class Board
 	attr_accessor :squares
 
-	def initialize
+	def initialize(p1_pieces, p2_pieces)
 		@squares = populate_squares
+		@p1_pieces = p1_pieces
+		@p2_pieces = p2_pieces
 	end
 
 	def print_board

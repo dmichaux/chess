@@ -1,9 +1,11 @@
 class King
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♔"
 		@w_symbol = "♚"
+		@location = location
 	end
 
 	def move
@@ -11,11 +13,13 @@ class King
 end
 
 class Queen
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♕"
 		@w_symbol = "♛"
+		@location = location
 	end
 
 	def move
@@ -23,11 +27,13 @@ class Queen
 end
 
 class Rook
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♖"
 		@w_symbol = "♜"
+		@location = location
 	end
 
 	def move
@@ -35,11 +41,13 @@ class Rook
 end
 
 class Knight
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♘"
 		@w_symbol = "♞"
+		@location = location
 	end
 
 	def move
@@ -47,11 +55,13 @@ class Knight
 end
 
 class Bishop
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♗"
 		@w_symbol = "♝"
+		@location = location
 	end
 
 	def move
@@ -59,11 +69,13 @@ class Bishop
 end
 
 class Pawn
+	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol
 
-	def initialize
+	def initialize(location)
 		@b_symbol = "♙"
 		@w_symbol = "♟"
+		@location = location
 	end
 
 	def move
