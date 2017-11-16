@@ -10,7 +10,7 @@ class King
 		@location = location
 	end
 
-	def move
+	def move(destination)
 	end
 
 	def can_move_there?(coordinate)
@@ -28,7 +28,7 @@ class Queen
 		@location = location
 	end
 
-	def move
+	def move(destination)
 	end
 
 	def can_move_there?(coordinate)
@@ -46,7 +46,7 @@ class Rook
 		@location = location
 	end
 
-	def move
+	def move(destination)
 	end
 
 	def can_move_there?(coordinate)
@@ -64,7 +64,7 @@ class Knight
 		@location = location
 	end
 
-	def move
+	def move(destination)
 	end
 
 	def can_move_there?(coordinate)
@@ -82,7 +82,7 @@ class Bishop
 		@location = location
 	end
 
-	def move
+	def move(destination)
 	end
 
 	def can_move_there?(coordinate)
@@ -100,7 +100,8 @@ class Pawn
 		@location = location
 	end
 
-	def move
+	def move(destination)
+		
 	end
 
 	def can_move_there?(coordinate)

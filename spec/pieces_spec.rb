@@ -15,6 +15,9 @@ describe 'King' do
 	end
 
 	describe '.move' do
+		it "it changes the king's location according to chess rules" do
+			expect{ @king.move([6, 1]) }.to change { @king.location }.from([5, 1]).to([6, 1])
+		end
 	end
 end
 
@@ -33,6 +36,9 @@ describe 'Queen' do
 	end
 
 	describe '.move' do
+		it "it changes the queen's location according to chess rules" do
+			expect{ @queen.move([6, 3]) }.to change { @queen.location }.from([4, 1]).to([6, 3])
+		end
 	end
 end
 
@@ -51,6 +57,9 @@ describe 'Rook' do
 	end
 
 	describe '.move' do
+		it "it changes the rook's location according to chess rules" do
+			expect{ @rook.move([1, 8]) }.to change { @rook.location }.from([1, 1]).to([1, 8])
+		end
 	end
 end
 
@@ -69,6 +78,9 @@ describe 'Knight' do
 	end
 
 	describe '.move' do
+		it "it changes the knight's location according to chess rules" do
+			expect{ @knight.move([3, 3]) }.to change { @knight.location }.from([2, 1]).to([3, 3])
+		end
 	end
 end
 
@@ -87,6 +99,9 @@ describe 'Bishop' do
 	end
 
 	describe '.move' do
+		it "it changes the bishop's location according to chess rules" do
+			expect{ @bishop.move([6, 4]) }.to change { @bishop.location }.from([3, 1]).to([6, 4])
+		end
 	end
 end
 
@@ -105,5 +120,8 @@ describe 'Pawn' do
 	end
 
 	describe '.move' do
+		it "it changes the pawn's location according to chess rules" do
+			expect{ @pawn.move([1, 3]) }.to change { @pawn.location }.from([1, 2]).to([1, 3])
+		end
 	end
 end

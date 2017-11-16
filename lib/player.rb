@@ -12,8 +12,7 @@ class Player
 	def take_turn
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
 		move = get_valid_move_coordinates
-		
-		# allow move. run king_in_check?. reset move if necessary.
+		move_piece(move)
 	end
 
 	private
@@ -105,5 +104,24 @@ class Player
 		@pieces.each do |piece|
 			return piece if coordinate == piece.location
 		end
+	end
+
+	def move_piece(move)
+		moving_piece = coordinate_to_piece(move[0])
+		start_location = moving_piece.location
+		moving_piece.location = move[1]
+		if king_in_check?
+			moving_piece.location = start_location
+			puts "Invalid move - Your king is in check! Try again."
+			take_turn
+		end
+	end
+
+	def king_in_check?
+		king = ""
+		@pieces.each do |piece|
+			king = piece if piece.id == "king"
+		end
+		king.check == true ? true : false
 	end
 end

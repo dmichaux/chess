@@ -28,7 +28,11 @@ class Board
 		puts "  -a---b---c---d---e---f---g---h-"
 	end
 
-	def update_board(new_pieces)
+	def update_board(player, pieces)
+		case player
+		when "Player 1" then @p1_pieces = pieces
+		when "Player 2" then @p2_pieces = pieces
+		end
 	end
 
 	private
