@@ -1,15 +1,19 @@
 class King
-	attr_accessor :location
+	attr_accessor :check, :location
 	attr_reader :w_symbol, :b_symbol, :id
 
 	def initialize(id, location)
 		@b_symbol = "♔"
 		@w_symbol = "♚"
+		@check = false
 		@id = id
 		@location = location
 	end
 
 	def move
+	end
+
+	def can_move_there?(coordinate)
 	end
 end
 
@@ -26,6 +30,9 @@ class Queen
 
 	def move
 	end
+
+	def can_move_there?(coordinate)
+	end
 end
 
 class Rook
@@ -40,6 +47,9 @@ class Rook
 	end
 
 	def move
+	end
+
+	def can_move_there?(coordinate)
 	end
 end
 
@@ -56,6 +66,9 @@ class Knight
 
 	def move
 	end
+
+	def can_move_there?(coordinate)
+	end
 end
 
 class Bishop
@@ -71,6 +84,9 @@ class Bishop
 
 	def move
 	end
+
+	def can_move_there?(coordinate)
+	end
 end
 
 class Pawn
@@ -85,5 +101,8 @@ class Pawn
 	end
 
 	def move
+	end
+
+	def can_move_there?(coordinate)
 	end
 end

@@ -2,12 +2,18 @@ class Player
 	require_relative 'pieces'
 
 	attr_accessor :pieces
+	attr_reader :id
 
-	def initialize(color)
+	def initialize(id, color)
+		@id = id
 		@pieces = populate_pieces(color)
 	end
 
 	def take_turn
+		puts "#{@id}'s turn:\n[example format: b1 to c3]"
+		move = get_valid_move_coordinates
+		
+		# allow move. run king_in_check?. reset move if necessary.
 	end
 
 	private
@@ -52,6 +58,52 @@ class Player
 			pawn8 = Pawn.new("pawn8", [8, 7])
 			pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2,
 				pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8]
+		end
+	end
+
+	def get_valid_move_coordinates
+		move = ""
+		until valid_move?(move)
+			move = gets.chomp
+			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
+			puts "Chess rules do not allow that move. Try again:" unless valid_move?(move)
+		end
+		coordinates = parse_move(move)
+		coordinates
+	end
+
+	def valid_move?(move)
+		valid = true
+		valid = false unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
+		coordinates = parse_move(move)
+		valid = false unless player_piece?(coordinates[0])
+		valid = false if player_piece?(coordinates[1])
+		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
+		valid = false unless selected_piece.can_move_there?(coordinates[1])
+		valid
+	end
+
+	def parse_move(move)
+		switch = {"a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5, "f" => 6, "g" => 7, "h" => 8}
+		coordinates = move.gsub(/[a-h]/, switch).split(" to ")
+		coordinates.collect do |c|
+			c.split("").collect do |n|
+				n.to_i
+			end
+		end
+	end
+
+	def player_piece?(coordinate)
+		player_piece = false
+		@pieces.each do |piece|
+			player_piece = true if coordinate == piece.location
+		end
+		player_piece
+	end
+
+	def coordinate_to_piece(coordinate)
+		@pieces.each do |piece|
+			return piece if coordinate == piece.location
 		end
 	end
 end
