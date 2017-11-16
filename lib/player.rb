@@ -78,7 +78,7 @@ class Player
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
-		valid = false unless selected_piece.can_move_there?(coordinates[1])
+		valid = false unless selected_piece.can_move_there?(selected_piece.location, coordinates[1])
 		valid
 	end
 

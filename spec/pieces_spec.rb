@@ -14,9 +14,9 @@ describe 'King' do
 		expect(@king.location).to eql([5, 1])
 	end
 
-	describe '.move' do
-		it "it changes the king's location according to chess rules" do
-			expect{ @king.move([6, 1]) }.to change { @king.location }.from([5, 1]).to([6, 1])
+	describe '.can_move_to?' do
+		it "returns true if the king's rules allow a move" do
+			expect(@king.can_move_to?(@king.location, [6, 1])).to eql(true)
 		end
 	end
 end
@@ -35,9 +35,9 @@ describe 'Queen' do
 		expect(@queen.location).to eql([4, 1])
 	end
 
-	describe '.move' do
-		it "it changes the queen's location according to chess rules" do
-			expect{ @queen.move([6, 3]) }.to change { @queen.location }.from([4, 1]).to([6, 3])
+	describe '.can_move_to?' do
+		it "returns true if the queen's rules allow a move" do
+			expect(@queen.can_move_to?(@queen.location, [6, 3])).to eql(true)
 		end
 	end
 end
@@ -56,9 +56,9 @@ describe 'Rook' do
 		expect(@rook.location).to eql([1, 1])
 	end
 
-	describe '.move' do
-		it "it changes the rook's location according to chess rules" do
-			expect{ @rook.move([1, 8]) }.to change { @rook.location }.from([1, 1]).to([1, 8])
+	describe '.can_move_to?' do
+		it "returns true if the rook's rules allow a move" do
+			expect(@rook.can_move_to?(@rook.location, [1, 8])).to eql(true)
 		end
 	end
 end
@@ -77,9 +77,9 @@ describe 'Knight' do
 		expect(@knight.location).to eql([2, 1])
 	end
 
-	describe '.move' do
-		it "it changes the knight's location according to chess rules" do
-			expect{ @knight.move([3, 3]) }.to change { @knight.location }.from([2, 1]).to([3, 3])
+	describe '.can_move_to?' do
+		it "returns true if the knight's rules allow a move" do
+			expect(@knight.can_move_to?(@knight.location, [3, 3])).to eql(true)
 		end
 	end
 end
@@ -98,9 +98,9 @@ describe 'Bishop' do
 		expect(@bishop.location).to eql([3, 1])
 	end
 
-	describe '.move' do
-		it "it changes the bishop's location according to chess rules" do
-			expect{ @bishop.move([6, 4]) }.to change { @bishop.location }.from([3, 1]).to([6, 4])
+	describe '.can_move_to?' do
+		it "returns true if the bishop's rules allow a move" do
+			expect(@bishop.can_move_to?(@bishop.location, [6, 4])).to eql(true)
 		end
 	end
 end
@@ -119,9 +119,9 @@ describe 'Pawn' do
 		expect(@pawn.location).to eql([1, 2])
 	end
 
-	describe '.move' do
-		it "it changes the pawn's location according to chess rules" do
-			expect{ @pawn.move([1, 3]) }.to change { @pawn.location }.from([1, 2]).to([1, 3])
+	describe '.can_move_to?' do
+		it "returns true if the pawn's rules allow a move" do
+			expect(@pawn.can_move_to?(@pawn.location, [1, 3])).to eql(true)
 		end
 	end
 end
