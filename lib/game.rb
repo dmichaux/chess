@@ -48,15 +48,35 @@ class Chess
 	def player1_turn
 		@board.print_board
 		@player1.take_turn
-		@board.update_board(@player1.id, @player1.pieces)
+		resolve_piece_capture(@player1.pieces, @player2.pieces) if piece_conflict?
+		@board.update_board(@player1.pieces, @player2.pieces)
 		game_over if game_over?
 	end
 
 	def player2_turn
 		@board.print_board
 		@player2.take_turn
-		@board.update_board(@player2.id, @player2.pieces)
+		resolve_piece_capture(@player2.pieces, @player1.pieces) if piece_conflict?
+		@board.update_board(@player1.pieces, @player2.pieces)
 		game_over if game_over?
+	end
+
+	def resolve_piece_capture(player, opponent)
+		player.each do |player_piece|
+			opponent.each do |opponent_piece|
+				opponent_piece.location = [] if player_piece.location == opponent_piece.location
+			end
+		end
+	end
+
+	def piece_conflict?
+		conflict = false
+		@player1.pieces.each do |piece1|
+			@player2.pieces.each do |piece2|
+				conflict = true if piece1.location == piece2.location
+			end
+		end
+		conflict
 	end
 
 	def game_over

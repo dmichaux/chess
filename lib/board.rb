@@ -28,12 +28,10 @@ class Board
 		puts "  -a---b---c---d---e---f---g---h-\n\n"
 	end
 
-	def update_board(player, pieces)
+	def update_board(player1_pieces, player2_pieces)
 		@squares.each_key { |k| @squares[k] = " "}
-		case player
-		when "Player 1" then @p1_pieces = pieces
-		when "Player 2" then @p2_pieces = pieces
-		end
+		@p1_pieces = player1_pieces
+		@p2_pieces = player2_pieces
 	end
 
 	private
