@@ -63,22 +63,23 @@ class Player
 	def get_valid_move_coordinates
 		move = ""
 		until valid_move?(move)
-			move = gets.chomp
+			move = gets.chomp.downcase
 			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
-			puts "Chess rules do not allow that move. Try again:" unless valid_move?(move)
+			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
 		end
 		coordinates = parse_move(move)
 		coordinates
 	end
 
 	def valid_move?(move)
+		return false if move == ""
 		valid = true
 		valid = false unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
 		coordinates = parse_move(move)
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
-		valid = false unless selected_piece.can_move_there?(selected_piece.location, coordinates[1])
+		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1]))
 		valid
 	end
 

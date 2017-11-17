@@ -9,7 +9,7 @@ class Board
 
 	def print_board
 		squares = place_pieces_on_squares
-		puts "  -a---b---c---d---e---f---g---h-"
+		puts "\n  -a---b---c---d---e---f---g---h-"
 		puts "8| #{squares[[1, 8]]} | #{squares[[2, 8]]} | #{squares[[3, 8]]} | #{squares[[4, 8]]} | #{squares[[5, 8]]} | #{squares[[6, 8]]} | #{squares[[7, 8]]} | #{squares[[8, 8]]} |8"
 		puts " |---|---|---|---|---|---|---|---|"
 		puts "7| #{squares[[1, 7]]} | #{squares[[2, 7]]} | #{squares[[3, 7]]} | #{squares[[4, 7]]} | #{squares[[5, 7]]} | #{squares[[6, 7]]} | #{squares[[7, 7]]} | #{squares[[8, 7]]} |7"
@@ -25,10 +25,11 @@ class Board
 		puts "2| #{squares[[1, 2]]} | #{squares[[2, 2]]} | #{squares[[3, 2]]} | #{squares[[4, 2]]} | #{squares[[5, 2]]} | #{squares[[6, 2]]} | #{squares[[7, 2]]} | #{squares[[8, 2]]} |2"
 		puts " |---|---|---|---|---|---|---|---|"
 		puts "1| #{squares[[1, 1]]} | #{squares[[2, 1]]} | #{squares[[3, 1]]} | #{squares[[4, 1]]} | #{squares[[5, 1]]} | #{squares[[6, 1]]} | #{squares[[7, 1]]} | #{squares[[8, 1]]} |1"
-		puts "  -a---b---c---d---e---f---g---h-"
+		puts "  -a---b---c---d---e---f---g---h-\n\n"
 	end
 
 	def update_board(player, pieces)
+		@squares.each_key { |k| @squares[k] = " "}
 		case player
 		when "Player 1" then @p1_pieces = pieces
 		when "Player 2" then @p2_pieces = pieces
