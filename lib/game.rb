@@ -31,7 +31,7 @@ class Chess
 		puts "\nNew game!\n"
 		@player1 = Player.new("Player 1", "white")
 		@player2 = Player.new("Player 2", "black")
-		@board = Board.new(@player1.pieces, @player2.pieces)
+		@board = Board.new(@player1, @player2)
 		game_action
 	end
 
@@ -48,24 +48,35 @@ class Chess
 	def player1_turn
 		@board.print_board
 		@player1.take_turn
-		resolve_piece_capture(@player1.pieces, @player2.pieces) if piece_conflict?
-		@board.update_board(@player1.pieces, @player2.pieces)
+		resolve_piece_capture(@player1, @player2, "black") if piece_conflict?
+		@board.update_board(@player1, @player2)
 		game_over if game_over?
 	end
 
 	def player2_turn
 		@board.print_board
 		@player2.take_turn
-		resolve_piece_capture(@player2.pieces, @player1.pieces) if piece_conflict?
-		@board.update_board(@player1.pieces, @player2.pieces)
+		resolve_piece_capture(@player2, @player1, "white") if piece_conflict?
+		@board.update_board(@player1, @player2)
 		game_over if game_over?
 	end
 
-	def resolve_piece_capture(player, opponent)
-		player.each do |player_piece|
-			opponent.each do |opponent_piece|
-				opponent_piece.location = [] if player_piece.location == opponent_piece.location
+	def resolve_piece_capture(player, opponent, opponent_color)
+		captured_piece = nil
+		player.pieces.each do |player_piece|
+			opponent.pieces.each do |opponent_piece|
+				captured_piece = opponent_piece if (player_piece.location != [] && player_piece.location == opponent_piece.location)
 			end
+		end
+		captured_piece.location = []
+		add_to_score(player, captured_piece, opponent_color)
+	end
+
+	def add_to_score(player, captured_piece, opponent_color)
+		player.points += captured_piece.points
+		case opponent_color
+		when "white" then player.captured_pieces += "#{captured_piece.w_symbol} "
+		when "black" then player.captured_pieces += "#{captured_piece.b_symbol} "
 		end
 	end
 
@@ -73,7 +84,7 @@ class Chess
 		conflict = false
 		@player1.pieces.each do |piece1|
 			@player2.pieces.each do |piece2|
-				conflict = true if piece1.location == piece2.location
+				conflict = true if (piece1.location != [] && piece1.location == piece2.location)
 			end
 		end
 		conflict

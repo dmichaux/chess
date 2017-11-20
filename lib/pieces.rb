@@ -20,11 +20,12 @@ end
 
 class Queen
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :id
+	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♕"
 		@w_symbol = "♛"
+		@points = 9
 		@id = id
 		@location = location
 	end
@@ -41,11 +42,12 @@ end
 
 class Rook
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :id
+	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♖"
 		@w_symbol = "♜"
+		@points = 5
 		@id = id
 		@location = location
 	end
@@ -59,11 +61,12 @@ end
 
 class Knight
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :id
+	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♘"
 		@w_symbol = "♞"
+		@points = 3
 		@id = id
 		@location = location
 	end
@@ -78,11 +81,12 @@ end
 
 class Bishop
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :id
+	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♗"
 		@w_symbol = "♝"
+		@points = 3
 		@id = id
 		@location = location
 	end
@@ -97,11 +101,12 @@ end
 
 class Pawn
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :id
+	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♙"
 		@w_symbol = "♟"
+		@points = 1
 		@id = id
 		@location = location
 	end

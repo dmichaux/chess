@@ -1,12 +1,14 @@
 class Player
 	require_relative 'pieces'
 
-	attr_accessor :pieces
+	attr_accessor :pieces, :points, :captured_pieces
 	attr_reader :id
 
 	def initialize(id, color)
 		@id = id
 		@pieces = populate_pieces(color)
+		@points = 0
+		@captured_pieces = ""
 	end
 
 	def take_turn
