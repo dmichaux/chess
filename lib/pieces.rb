@@ -195,12 +195,13 @@ class Bishop
 end
 
 class Pawn
-	attr_accessor :location
+	attr_accessor :first_move, :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
 	def initialize(id, location)
 		@b_symbol = "♙"
 		@w_symbol = "♟"
+		@first_move = true
 		@points = 1
 		@id = id
 		@location = location
@@ -210,6 +211,7 @@ class Pawn
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false unless delta == [0, 1]
+		valid = true if delta == [0, 2] && @first_move == true
 		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
 		valid
 	end
