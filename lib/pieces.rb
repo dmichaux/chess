@@ -216,12 +216,12 @@ class Pawn
 	end
 
 	def can_move_there?(from, to, player_pieces, opponent_pieces)
-		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
+		travel = [(to[0] - from[0]), (to[1] - from[1])]
 		valid = true
-		valid = false if delta == [0, 0]
-		valid = false unless delta == [0, 1]
-		valid = true if delta == [0, 2] && @first_move == true
+		valid = false unless travel == [0, 1]
+		valid = true if travel == [0, 2] && @first_move == true
 		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = true if (travel == [-1, 1] && opponent_present?(to, opponent_pieces)) || (travel == [1, 1] && opponent_present?(to, opponent_pieces))
 		valid
 	end
 
@@ -244,5 +244,13 @@ class Pawn
 			(from[1] + 1).upto(to[1]) { |y| path.push([from[0], y]) }
 		end	
 		path
+	end
+
+	def opponent_present?(destination, opponent_pieces)
+		valid = false
+		opponent_pieces.each do |piece|
+			valid = true if piece.location == destination
+		end
+		valid
 	end
 end
