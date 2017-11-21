@@ -72,7 +72,8 @@ class Queen
 			(from[0] - 1).downto(to[0]) { |x| path.push([x, from[1]]) }
 		when travel[0] < 0 && travel[1] > 0 # up/left
 			1.upto(travel[0].abs) { |t| path.push([(from[0] - t), (from[1] + t)]) }
-		end	
+		end
+		path.pop
 		path
 	end
 end
@@ -120,7 +121,8 @@ class Rook
 			(from[1] - 1).downto(to[1]) { |y| path.push([from[0], y]) }
 		when travel[0] < 0 && travel[1] == 0 # left
 			(from[0] - 1).downto(to[0]) { |x| path.push([x, from[1]]) }
-		end	
+		end
+		path.pop
 		path
 	end
 end
@@ -189,7 +191,8 @@ class Bishop
 			1.upto(travel[0].abs) { |t| path.push([(from[0] - t), (from[1] - t)]) }
 		when travel[0] < 0 && travel[1] > 0 # up/left
 			1.upto(travel[0].abs) { |t| path.push([(from[0] - t), (from[1] + t)]) }
-		end	
+		end
+		path.pop
 		path
 	end
 end
