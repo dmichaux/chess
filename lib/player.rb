@@ -14,7 +14,7 @@ class Player
 	def take_turn(opponent_pieces)
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
 		move = get_valid_move_coordinates(opponent_pieces)
-		move_piece(move)
+		move_piece(move, opponent_pieces)
 	end
 
 	private
@@ -109,23 +109,27 @@ class Player
 		end
 	end
 
-	def move_piece(move)
+	def move_piece(move, opponent_pieces)
 		moving_piece = coordinate_to_piece(move[0])
 		start_location = moving_piece.location
 		moving_piece.location = move[1]
-		if king_in_check?
+		if king_in_check?(opponent_pieces)
 			moving_piece.location = start_location
-			puts "Invalid move - Your king is in check! Try again."
-			take_turn
+			puts "Invalid move - Your king would remain in check! Try again."
+			take_turn(opponent_pieces)
 		end
 		moving_piece.first_move = false if moving_piece.id == "pawn"
 	end
 
-	def king_in_check?
+	def king_in_check?(opponent_pieces)
 		king = ""
 		@pieces.each do |piece|
 			king = piece if piece.id == "king"
 		end
-		king.check == true ? true : false
+		king.check = false
+		opponent_pieces.each do |piece|
+			king.check = true if piece.can_move_there?(piece.location, king.location, opponent_pieces, @pieces)
+		end
+		king.check
 	end
 end

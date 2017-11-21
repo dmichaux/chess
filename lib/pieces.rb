@@ -10,9 +10,10 @@ class King
 		@location = location
 	end
 
-	def can_move_there?(from, to)
+	def can_move_there?(from, to, player_pieces, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
+		valid = false if delta == [0, 0]
 		valid = false if ((delta[0] > 1) || (delta[1] > 1))
 		valid
 	end
@@ -31,8 +32,9 @@ class Queen
 	end
 
 	def can_move_there?(from, to, player_pieces, opponent_pieces)
-		valid = true
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
+		valid = true
+		valid = false if delta == [0, 0]
 		if ((from[0] != to[0]) && (from[1] != to[1]))
 			valid = false unless delta[0] == delta[1]
 		end
@@ -91,7 +93,9 @@ class Rook
 	end
 
 	def can_move_there?(from, to, player_pieces, opponent_pieces)
+		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
+		valid = false if delta == [0, 0]
 		valid = false unless ((from[0] == to[0]) || (from[1] == to[1]))
 		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
 		valid
@@ -139,10 +143,10 @@ class Knight
 		@location = location
 	end
 
-	def can_move_there?(from, to)
+	def can_move_there?(from, to, player_pieces, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
-		valid = false
-		valid = true if (delta == [1, 2] || delta == [2, 1])
+		valid = true
+		valid = false unless (delta == [1, 2] || delta == [2, 1])
 		valid
 	end
 end
@@ -162,6 +166,7 @@ class Bishop
 	def can_move_there?(from, to, player_pieces, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
+		valid = false if delta == [0, 0]
 		valid = false unless delta[0] == delta[1]
 		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
 		valid
@@ -213,6 +218,7 @@ class Pawn
 	def can_move_there?(from, to, player_pieces, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
+		valid = false if delta == [0, 0]
 		valid = false unless delta == [0, 1]
 		valid = true if delta == [0, 2] && @first_move == true
 		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
