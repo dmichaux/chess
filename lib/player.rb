@@ -11,9 +11,9 @@ class Player
 		@captured_pieces = ""
 	end
 
-	def take_turn
+	def take_turn(opponent_pieces)
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
-		move = get_valid_move_coordinates
+		move = get_valid_move_coordinates(opponent_pieces)
 		move_piece(move)
 	end
 
@@ -62,18 +62,18 @@ class Player
 		end
 	end
 
-	def get_valid_move_coordinates
+	def get_valid_move_coordinates(opponent_pieces)
 		move = ""
-		until valid_move?(move)
+		until valid_move?(move, opponent_pieces)
 			move = gets.chomp.downcase
 			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
-			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
+			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move, opponent_pieces) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
 		end
 		coordinates = parse_move(move)
 		coordinates
 	end
 
-	def valid_move?(move)
+	def valid_move?(move, opponent_pieces)
 		return false if move == ""
 		valid = true
 		valid = false unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
@@ -81,7 +81,7 @@ class Player
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
-		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1]))
+		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1], @pieces, opponent_pieces))
 		valid
 	end
 
