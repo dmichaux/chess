@@ -11,10 +11,10 @@ class Player
 		@captured_pieces = ""
 	end
 
-	def take_turn(opponent_pieces)
+	def take_turn(opponent)
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
-		move = get_valid_move_coordinates(opponent_pieces)
-		move_piece(move, opponent_pieces)
+		move = get_valid_move_coordinates(opponent.pieces)
+		move_piece(move, opponent)
 	end
 
 	private
@@ -81,7 +81,7 @@ class Player
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
-		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1], @pieces, opponent_pieces))
+		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1], self, opponent_pieces))
 		valid
 	end
 
@@ -109,27 +109,58 @@ class Player
 		end
 	end
 
-	def move_piece(move, opponent_pieces)
+	def move_piece(move, opponent)
 		moving_piece = coordinate_to_piece(move[0])
 		start_location = moving_piece.location
 		moving_piece.location = move[1]
-		if king_in_check?(opponent_pieces)
+		if king_in_check?(opponent)
 			moving_piece.location = start_location
 			puts "Invalid move - Your king would remain in check! Try again."
 			take_turn(opponent_pieces)
 		end
-		moving_piece.first_move = false if moving_piece.id == "pawn"
+		if moving_piece.id == "pawn"
+			moving_piece.first_move = false
+			if (moving_piece.location[1] == 1 || moving_piece.location[1] == 8)
+				promote_pawn(moving_piece)
+			end
+		end
 	end
 
-	def king_in_check?(opponent_pieces)
+	def king_in_check?(opponent)
 		king = ""
 		@pieces.each do |piece|
 			king = piece if piece.id == "king"
 		end
 		king.check = false
-		opponent_pieces.each do |piece|
-			king.check = true if piece.can_move_there?(piece.location, king.location, opponent_pieces, @pieces)
+		opponent.pieces.each do |piece|
+			king.check = true if piece.can_move_there?(piece.location, king.location, opponent, @pieces)
 		end
 		king.check
+	end
+
+	def promote_pawn(pawn)
+		input = promote_to
+		promotion(input, pawn.location)
+		pawn.location = []
+	end
+
+	def promote_to
+		puts "#{@id} may promote the pawn. What piece do you choose?\n[queen, rook, knight, or bishop]"
+		choices = ["queen", "rook", "knight", "bishop"]
+		input = ""
+		until choices.include?(input)
+			input = gets.chomp.downcase
+			puts "Invalid selection. What piece do you choose?\n[queen, rook, knight, or bishop]" unless choices.include?(input)
+		end
+		input
+	end
+
+	def promotion(choice, location)
+		case choice
+		when "queen" then @pieces.push(Queen.new("queen", location))
+		when "rook" then @pieces.push(Rook.new("rook", location))
+		when "knight" then @pieces.push(Knight.new("knight", location))
+		when "bishop" then @pieces.push(Bishop.new("bishop", location))
+		end
 	end
 end

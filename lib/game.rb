@@ -47,7 +47,7 @@ class Chess
 
 	def player1_turn
 		@board.print_board
-		@player1.take_turn(@player2.pieces)
+		@player1.take_turn(@player2)
 		resolve_piece_capture(@player1, @player2, "black") if piece_conflict?
 		@board.update_board(@player1, @player2)
 		game_over if game_over?
@@ -55,7 +55,7 @@ class Chess
 
 	def player2_turn
 		@board.print_board
-		@player2.take_turn(@player1.pieces)
+		@player2.take_turn(@player1)
 		resolve_piece_capture(@player2, @player1, "white") if piece_conflict?
 		@board.update_board(@player1, @player2)
 		game_over if game_over?

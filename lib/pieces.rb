@@ -10,7 +10,7 @@ class King
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
@@ -31,14 +31,14 @@ class Queen
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
 		if ((from[0] != to[0]) && (from[1] != to[1]))
 			valid = false unless delta[0] == delta[1]
 		end
-		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = false unless valid_path?(from, to, player.pieces, opponent_pieces)
 		valid
 	end
 
@@ -92,12 +92,12 @@ class Rook
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
 		valid = false unless ((from[0] == to[0]) || (from[1] == to[1]))
-		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = false unless valid_path?(from, to, player.pieces, opponent_pieces)
 		valid
 	end
 
@@ -143,7 +143,7 @@ class Knight
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false unless (delta == [1, 2] || delta == [2, 1])
@@ -163,12 +163,12 @@ class Bishop
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
 		valid = false unless delta[0] == delta[1]
-		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = false unless valid_path?(from, to, player.pieces, opponent_pieces)
 		valid
 	end
 
@@ -215,13 +215,20 @@ class Pawn
 		@location = location
 	end
 
-	def can_move_there?(from, to, player_pieces, opponent_pieces)
+	def can_move_there?(from, to, player, opponent_pieces)
 		travel = [(to[0] - from[0]), (to[1] - from[1])]
 		valid = true
-		valid = false unless travel == [0, 1]
-		valid = true if travel == [0, 2] && @first_move == true
-		valid = false unless valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true if (travel == [-1, 1] && opponent_present?(to, opponent_pieces)) || (travel == [1, 1] && opponent_present?(to, opponent_pieces))
+		case
+		when player.id == "Player 1"
+			valid = false unless travel == [0, 1]
+			valid = true if travel == [0, 2] && @first_move == true
+			valid = true if (travel == [-1, 1] && opponent_present?(to, opponent_pieces)) || (travel == [1, 1] && opponent_present?(to, opponent_pieces))
+		when player.id == "Player 2"
+			valid = false unless travel == [0, -1]
+			valid = true if travel == [0, -2] && @first_move == true
+			valid = true if (travel == [-1, -1] && opponent_present?(to, opponent_pieces)) || (travel == [1, -1] && opponent_present?(to, opponent_pieces))
+		end
+		valid = false unless valid_path?(from, to, player.pieces, opponent_pieces)
 		valid
 	end
 
@@ -242,6 +249,8 @@ class Pawn
 		travel = [(to[0] - from[0]), (to[1] - from[1])]
 		if travel[0] == 0 && travel[1] > 0 # up
 			(from[1] + 1).upto(to[1]) { |y| path.push([from[0], y]) }
+		elsif travel[0] == 0 && travel[1] < 0 # down
+			(from[1] - 1).downto(to[1]) { |y| path.push([from[0], y]) }
 		end	
 		path
 	end
