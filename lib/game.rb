@@ -41,9 +41,7 @@ class Chess
 	def game_action
 		until game_over?
 			player1_turn
-			puts "#{@player1.pieces}"
 			player2_turn unless game_over?
-			puts "#{@player2.pieces}"
 		end
 	end
 
@@ -66,7 +64,7 @@ class Chess
 	end
 
 	def resolve_piece_capture(player, opponent_pieces, opponent_color)
-		captured_piece = nil
+		captured_piece = ""
 		player.pieces.each do |player_piece|
 			opponent_pieces.each do |opponent_piece|
 				captured_piece = opponent_piece if (player_piece.location != [] && player_piece.location == opponent_piece.location)

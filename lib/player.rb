@@ -14,7 +14,8 @@ class Player
 
 	def take_turn(opponent)
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
-		move = get_valid_move_coordinates(opponent.pieces)
+		king_in_check?(opponent)
+		move = get_valid_move_coordinates(opponent)
 		move_piece(move, opponent)
 		@turn += 1
 		move
@@ -65,18 +66,30 @@ class Player
 		end
 	end
 
-	def get_valid_move_coordinates(opponent_pieces)
+	def king_in_check?(opponent)
+		king = ""
+		@pieces.each do |piece|
+			king = piece if piece.id == "king"
+		end
+		king.check = false
+		opponent.pieces.each do |piece|
+			king.check = true if piece.location != [] && piece.can_move_there?(piece.location, king.location, opponent, self)
+		end
+		king.check
+	end
+
+	def get_valid_move_coordinates(opponent)
 		move = ""
-		until valid_move?(move, opponent_pieces)
+		until valid_move?(move, opponent)
 			move = gets.chomp.downcase
 			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
-			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move, opponent_pieces) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
+			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move, opponent) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
 		end
 		coordinates = parse_move(move)
 		coordinates
 	end
 
-	def valid_move?(move, opponent_pieces)
+	def valid_move?(move, opponent)
 		return false if move == ""
 		valid = true
 		valid = false unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
@@ -84,7 +97,7 @@ class Player
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
-		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1], self, opponent_pieces))
+		valid = false unless (player_piece?(coordinates[0]) && selected_piece.can_move_there?(selected_piece.location, coordinates[1], self, opponent))
 		valid
 	end
 
@@ -121,6 +134,16 @@ class Player
 			puts "Invalid move - Your king would remain in check! Try again."
 			take_turn(opponent)
 		end
+		if moving_piece.id == "king" && (move[1][0] - move[0][0]).abs == 2
+			direction = (move[1][0] - move[0][0]) > 0 ? "right" : "left"
+			rook = moving_piece.find_castling_rook(@pieces, direction)
+			case 
+			when direction == "right" then rook.location[0] = (moving_piece.location[0] - 1)
+			when direction == "left" then rook.location[0] = (moving_piece.location[0] + 1)
+			end
+		end
+		moving_piece.moves_made += 1 if moving_piece.id == "king"
+		moving_piece.moves_made += 1 if moving_piece.id == "rook"
 		if moving_piece.id == "pawn"
 			moving_piece.moves_made += 1
 			moving_piece.double_advanced_on_turn = @turn if (move[1][1] - move[0][1]).abs == 2
@@ -128,18 +151,6 @@ class Player
 				promote_pawn(moving_piece)
 			end
 		end
-	end
-
-	def king_in_check?(opponent)
-		king = ""
-		@pieces.each do |piece|
-			king = piece if piece.id == "king"
-		end
-		king.check = false
-		opponent.pieces.each do |piece|
-			king.check = true if piece.location != [] && piece.can_move_there?(piece.location, king.location, opponent, @pieces)
-		end
-		king.check
 	end
 
 	def promote_pawn(pawn)
