@@ -41,30 +41,34 @@ class Chess
 	def game_action
 		until game_over?
 			player1_turn
+			puts "#{@player1.pieces}"
 			player2_turn unless game_over?
+			puts "#{@player2.pieces}"
 		end
 	end
 
 	def player1_turn
 		@board.print_board
-		@player1.take_turn(@player2)
-		resolve_piece_capture(@player1, @player2, "black") if piece_conflict?
+		move = @player1.take_turn(@player2)
+		resolve_en_passant(move, @player1, @player2.pieces, "black") if en_passant_in_progress?(move, @player1.pieces) && piece_conflict? == false
+		resolve_piece_capture(@player1, @player2.pieces, "black") if piece_conflict?
 		@board.update_board(@player1, @player2)
 		game_over if game_over?
 	end
 
 	def player2_turn
 		@board.print_board
-		@player2.take_turn(@player1)
-		resolve_piece_capture(@player2, @player1, "white") if piece_conflict?
+		move = @player2.take_turn(@player1)
+		resolve_en_passant(move, @player2, @player1.pieces, "white") if en_passant_in_progress?(move, @player2.pieces) && piece_conflict? == false
+		resolve_piece_capture(@player2, @player1.pieces, "white") if piece_conflict?
 		@board.update_board(@player1, @player2)
 		game_over if game_over?
 	end
 
-	def resolve_piece_capture(player, opponent, opponent_color)
+	def resolve_piece_capture(player, opponent_pieces, opponent_color)
 		captured_piece = nil
 		player.pieces.each do |player_piece|
-			opponent.pieces.each do |opponent_piece|
+			opponent_pieces.each do |opponent_piece|
 				captured_piece = opponent_piece if (player_piece.location != [] && player_piece.location == opponent_piece.location)
 			end
 		end
@@ -88,6 +92,22 @@ class Chess
 			end
 		end
 		conflict
+	end
+
+	def resolve_en_passant(move, player, opponent_pieces, opponent_color)
+		captured_pawn = opponent_pieces.find { |piece| (piece.location == [move[1][0], (move[1][1] + 1)] || piece.location == [move[1][0], (move[1][1] - 1)]) }
+		captured_pawn.location = []
+		add_to_score(player, captured_pawn, opponent_color)
+	end
+
+	def en_passant_in_progress?(move, player_pieces)
+		# pawn moved diagonal without conflict at destination square
+		delta = [(move[1][0] - move[0][0]).abs, (move[1][1] - move[0][1]).abs]
+		in_progress = false
+		pawn = player_pieces.find { |piece| piece.id == "pawn" && piece.location == move[1] }
+		return false if pawn.nil?
+		in_progress = true if delta[0] == delta[1]
+		in_progress
 	end
 
 	def game_over

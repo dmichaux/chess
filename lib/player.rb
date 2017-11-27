@@ -1,12 +1,13 @@
 class Player
 	require_relative 'pieces'
 
-	attr_accessor :pieces, :points, :captured_pieces
+	attr_accessor :pieces, :turn, :points, :captured_pieces
 	attr_reader :id
 
 	def initialize(id, color)
 		@id = id
 		@pieces = populate_pieces(color)
+		@turn = 1
 		@points = 0
 		@captured_pieces = ""
 	end
@@ -15,6 +16,8 @@ class Player
 		puts "#{@id}'s turn:\n[example format: b1 to c3]"
 		move = get_valid_move_coordinates(opponent.pieces)
 		move_piece(move, opponent)
+		@turn += 1
+		move
 	end
 
 	private
@@ -116,10 +119,11 @@ class Player
 		if king_in_check?(opponent)
 			moving_piece.location = start_location
 			puts "Invalid move - Your king would remain in check! Try again."
-			take_turn(opponent_pieces)
+			take_turn(opponent)
 		end
 		if moving_piece.id == "pawn"
-			moving_piece.first_move = false
+			moving_piece.moves_made += 1
+			moving_piece.double_advanced_on_turn = @turn if (move[1][1] - move[0][1]).abs == 2
 			if (moving_piece.location[1] == 1 || moving_piece.location[1] == 8)
 				promote_pawn(moving_piece)
 			end
@@ -133,7 +137,7 @@ class Player
 		end
 		king.check = false
 		opponent.pieces.each do |piece|
-			king.check = true if piece.can_move_there?(piece.location, king.location, opponent, @pieces)
+			king.check = true if piece.location != [] && piece.can_move_there?(piece.location, king.location, opponent, @pieces)
 		end
 		king.check
 	end
