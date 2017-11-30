@@ -21,6 +21,12 @@ class Player
 		move
 	end
 
+	def in_checkmate?(opponent)
+		checkmate = false
+		checkmate = true if king_in_check?(opponent) && zero_valid_moves?(opponent)
+		checkmate
+	end
+
 	private
 
 	def populate_pieces(color)
@@ -45,8 +51,8 @@ class Player
 			pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2,
 				pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8]
 		when "black"
-			king = King.new("king", [4, 8])
-			queen = Queen.new("queen", [5, 8])
+			king = King.new("king", [5, 8])
+			queen = Queen.new("queen", [4, 8])
 			bishop1 = Bishop.new("bishop", [3, 8])
 			bishop2 = Bishop.new("bishop", [6, 8])
 			knight1 = Knight.new("knight", [2, 8])
@@ -80,20 +86,20 @@ class Player
 
 	def get_valid_move_coordinates(opponent)
 		move = ""
-		until valid_move?(move, opponent)
+		until /[a-h][1-8] to [a-h][1-8]/.match?(move)
 			move = gets.chomp.downcase
-			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
-			puts "Chess rules do not allow that move. Try again:" if (!valid_move?(move, opponent) && /[a-h][1-8] to [a-h][1-8]/.match?(move))
+			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)			
 		end
 		coordinates = parse_move(move)
+		unless valid_move?(coordinates, opponent)
+			puts "Chess rules do not allow that move. Try again:"
+			get_valid_move_coordinates(opponent)
+		end
 		coordinates
 	end
 
-	def valid_move?(move, opponent)
-		return false if move == ""
+	def valid_move?(coordinates, opponent)
 		valid = true
-		valid = false unless /[a-h][1-8] to [a-h][1-8]/.match?(move)
-		coordinates = parse_move(move)
 		valid = false unless player_piece?(coordinates[0])
 		valid = false if player_piece?(coordinates[1])
 		selected_piece = coordinate_to_piece(coordinates[0]) if player_piece?(coordinates[0])
@@ -178,4 +184,69 @@ class Player
 		when "bishop" then @pieces.push(Bishop.new("bishop", location))
 		end
 	end
+
+	def zero_valid_moves?(opponent)
+		king = @pieces.find { |piece| piece.id == "king" }
+		threat = opponent.pieces.find { |piece| piece.location != [] && piece.can_move_there?(piece.location, king.location, opponent, self) }
+		zero_moves = true
+		zero_moves = false if can_king_escape?(king, opponent)
+		zero_moves = false if can_capture_threat?(threat, opponent)
+		zero_moves = false if can_block_threat?(king, threat, opponent)
+		zero_moves
+	end
+
+	def can_king_escape?(king, opponent)
+		potential_coordinates = get_potential_coordinates(king)
+		can_escape = false
+		potential_coordinates.each do |coordinate_pair|
+			if valid_move?(coordinate_pair, opponent)
+				can_escape = true
+				opponent.pieces.each do |piece|
+					can_escape = false if piece.location != [] && piece.can_move_there?(piece.location, coordinate_pair[1], opponent, self)
+				end
+				return true if can_escape == true
+			end
+		end
+		can_escape
+	end
+
+	def get_potential_coordinates(king)
+		potential_moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
+		potential_moves.collect { |move| [(move[0] += king.location[0]), (move[1] += king.location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [king.location, move] }
+		potential_coordinates
+	end
+
+	def can_capture_threat?(threat, opponent)
+		can_capture = false
+		@pieces.each do |piece|
+			can_capture = true if piece.location != [] && piece.can_move_there?(piece.location, threat.location, self, opponent)
+			if piece.id == "king"
+				opponent.pieces.each do |opp_piece|
+					can_capture = false if opp_piece.location != [] && opp_piece.can_move_there?(opp_piece.location, threat.location, opponent, self)
+				end
+			end
+		end
+		can_capture
+	end
+
+	def can_block_threat?(king, threat, opponent)
+		can_block = false
+		if ["queen", "rook", "bishop"].include?(threat.id)
+			threat_path = threat.calculate_path(threat.location, king.location)
+			threat_path.each do |square|
+				@pieces.each do |piece|
+					can_block = true if piece.location != [] && piece.can_move_there?(piece.location, square, self, opponent)
+					can_block = false if piece.id == "king"
+				end
+			end
+		end
+		can_block
+	end
 end
+
+		# zero_moves = false if
+		# 1. The king can move out of check
+		# 2. Any piece can capture the threat (except the king if threat is protected - check for check after move)
+		# 3. Any piece can block the threat (note: knight cannot be blocked)

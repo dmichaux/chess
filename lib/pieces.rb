@@ -95,18 +95,6 @@ class Queen
 		valid
 	end
 
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
-
 	def calculate_path(from, to)
 		path = []
 		travel = [(to[0] - from[0]), (to[1] - from[1])]
@@ -130,6 +118,18 @@ class Queen
 		end
 		path.pop
 		path
+	end
+
+	private
+
+	def valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = true
+		path = calculate_path(from, to)
+		obstacles = player_pieces + opponent_pieces
+		obstacles.each do |piece|
+			valid = false if path.include?(piece.location)
+		end
+		valid
 	end
 end
 
@@ -155,18 +155,6 @@ class Rook
 		valid
 	end
 
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
-
 	def calculate_path(from, to)
 		path = []
 		travel = [(to[0] - from[0]), (to[1] - from[1])]
@@ -182,6 +170,18 @@ class Rook
 		end
 		path.pop
 		path
+	end
+
+	private
+
+	def valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = true
+		path = calculate_path(from, to)
+		obstacles = player_pieces + opponent_pieces
+		obstacles.each do |piece|
+			valid = false if path.include?(piece.location)
+		end
+		valid
 	end
 end
 
@@ -226,18 +226,6 @@ class Bishop
 		valid
 	end
 
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
-
 	def calculate_path(from, to)
 		path = []
 		travel = [(to[0] - from[0]), (to[1] - from[1])]
@@ -253,6 +241,18 @@ class Bishop
 		end
 		path.pop
 		path
+	end
+
+	private
+
+	def valid_path?(from, to, player_pieces, opponent_pieces)
+		valid = true
+		path = calculate_path(from, to)
+		obstacles = player_pieces + opponent_pieces
+		obstacles.each do |piece|
+			valid = false if path.include?(piece.location)
+		end
+		valid
 	end
 end
 

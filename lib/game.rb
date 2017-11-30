@@ -3,6 +3,7 @@ class Chess
 	require_relative 'player'
 
 	def initialize
+		@game_over = false
 		start
 	end
 
@@ -39,10 +40,11 @@ class Chess
 	end
 
 	def game_action
-		until game_over?
+		until @game_over
 			player1_turn
-			player2_turn unless game_over?
+			player2_turn unless @game_over
 		end
+		end_the_game
 	end
 
 	def player1_turn
@@ -51,7 +53,7 @@ class Chess
 		resolve_en_passant(move, @player1, @player2.pieces, "black") if en_passant_in_progress?(move, @player1.pieces) && piece_conflict? == false
 		resolve_piece_capture(@player1, @player2.pieces, "black") if piece_conflict?
 		@board.update_board(@player1, @player2)
-		game_over if game_over?
+		@game_over = true if game_over?(@player1, @player2)
 	end
 
 	def player2_turn
@@ -60,7 +62,7 @@ class Chess
 		resolve_en_passant(move, @player2, @player1.pieces, "white") if en_passant_in_progress?(move, @player2.pieces) && piece_conflict? == false
 		resolve_piece_capture(@player2, @player1.pieces, "white") if piece_conflict?
 		@board.update_board(@player1, @player2)
-		game_over if game_over?
+		@game_over = true if game_over?(@player2, @player1)
 	end
 
 	def resolve_piece_capture(player, opponent_pieces, opponent_color)
@@ -108,13 +110,16 @@ class Chess
 		in_progress
 	end
 
-	def game_over
-		puts "Good game! Pieces go back in the box."
+	def end_the_game
+		puts "Good game! All pieces go back in the box."
 	end
 
-	def game_over?
+	def game_over?(player, opponent)
 		# King in check. No valid moves.
 		# Stalemate
+		over = false
+		over = true if opponent.in_checkmate?(player)
+		over
 	end
 end
 
