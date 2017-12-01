@@ -13,9 +13,10 @@ class Player
 	end
 
 	def take_turn(opponent)
-		puts "#{@id}'s turn:\n[example format: b1 to c3]"
+		puts "#{@id}'s turn:\n[example format: b1 to c3. 'resign' to resign game]"
 		king_in_check?(opponent)
 		move = get_valid_move_coordinates(opponent)
+		return move if move.include?("resign")
 		move_piece(move, opponent)
 		@turn += 1
 		move
@@ -104,10 +105,11 @@ class Player
 
 	def get_valid_move_coordinates(opponent)
 		move = ""
-		until /[a-h][1-8] to [a-h][1-8]/.match?(move)
+		until (/[a-h][1-8] to [a-h][1-8]/.match?(move)) || (/resign/.match?(move))
 			move = gets.chomp.downcase
-			puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move)			
+			puts "Invalid selection - Try again with correct format:" unless (/[a-h][1-8] to [a-h][1-8]/.match?(move)) || (/resign/.match?(move))			
 		end
+		return "#{@id} resigns." if /resign/.match?(move)
 		coordinates = parse_move(move)
 		unless valid_move?(coordinates, opponent)
 			puts "Chess rules do not allow that move. Try again:"
