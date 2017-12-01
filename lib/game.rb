@@ -1,4 +1,5 @@
 class Chess
+	require 'json'
 	require_relative 'board'
 	require_relative 'player'
 
@@ -53,6 +54,8 @@ class Chess
 		if move.include?("resign")
 			puts move
 			@game_over = true
+		elsif move.include?("save")
+			save_game(move)
 		else
 			resolve_en_passant(move, @player1, @player2.pieces, "black") if en_passant_in_progress?(move, @player1.pieces) && piece_conflict? == false
 			resolve_piece_capture(@player1, @player2.pieces, "black") if piece_conflict?
@@ -67,6 +70,8 @@ class Chess
 		if move.include?("resign")
 			puts move
 			@game_over = true
+		elsif move.include?("save")
+				save_game(move)
 		else
 			resolve_en_passant(move, @player2, @player1.pieces, "white") if en_passant_in_progress?(move, @player2.pieces) && piece_conflict? == false
 			resolve_piece_capture(@player2, @player1.pieces, "white") if piece_conflict?
@@ -130,6 +135,60 @@ class Chess
 		over = true if opponent.in_stalemate?(player)
 		over
 	end
+
+	def save_game(input)
+		@game_over = true
+		saved_info = save_player_info(input)
+		saved_info_json = JSON.generate(saved_info)
+		filename = get_filename
+		Dir.mkdir("saved_games") unless Dir.exists?("saved_games")
+		File.open("saved_games/#{filename}.txt", "w") { |file| file.puts(saved_info_json) }
+		puts "Game Saved!"
+	end
+
+	def get_filename
+		puts "Please choose a name for your saved game:\n[1 to 10 alpha-numeric characters]"
+		filename = ""
+		until /\w{1,10}/.match?(filename)
+			filename = gets.chomp
+			puts "Invalid name. Try again:" unless /\w{1,10}/.match?(filename)
+		end
+		filename
+	end
+
+	def save_player_info(current_turn)
+		case
+		when current_turn.include?("1") then current_turn = 1
+		when current_turn.include?("2") then current_turn = 2
+		end
+		p1_pieces = populate_piece_info(@player1.pieces)
+		p2_pieces = populate_piece_info(@player2.pieces)
+		p1_saved_info = {"turn" => @player1.turn, "points" => @player1.points, "captured pieces" => @player1.captured_pieces,
+										"pieces" => p1_pieces}
+		p2_saved_info = {"turn" => @player2.turn, "points" => @player2.points, "captured pieces" => @player2.captured_pieces,
+										"pieces" => p2_pieces}
+		saved_info = {"current turn" => current_turn, "p1" => p1_saved_info, "p2" => p2_saved_info}
+		saved_info
+	end
+
+	def populate_piece_info(player_pieces)
+		populated_pieces = []
+		player_pieces.each do |piece|
+			if ["king", "rook"].include?(piece.id)
+				populated_pieces.push({"id" => piece.id, "location" => piece.location, "moves made" => piece.moves_made})
+			elsif piece.id == "pawn"
+				populated_pieces.push({"id" => piece.id, "location" => piece.location, "moves made" => piece.moves_made, "advanced on" => piece.double_advanced_on_turn})
+			else
+				populated_pieces.push({"id" => piece.id, "location" => piece.location})
+			end
+		end
+		populated_pieces
+	end
 end
+
+		# @pieces = populate_pieces(color)
+		# @turn = 1
+		# @points = 0
+		# @captured_pieces = ""
 
 game = Chess.new
