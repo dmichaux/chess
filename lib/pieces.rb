@@ -32,6 +32,14 @@ class King
 		rook
 	end
 
+	def get_potential_coordinates(player, opponent)
+		potential_moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
+	end
+
 	private
 
 	def can_castle?(from, to, player, opponent)
@@ -120,6 +128,14 @@ class Queen
 		path
 	end
 
+	def get_potential_coordinates(player, opponent)
+		potential_moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
+	end
+
 	private
 
 	def valid_path?(from, to, player_pieces, opponent_pieces)
@@ -172,6 +188,14 @@ class Rook
 		path
 	end
 
+	def get_potential_coordinates(player, opponent)
+		potential_moves = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
+	end
+
 	private
 
 	def valid_path?(from, to, player_pieces, opponent_pieces)
@@ -202,6 +226,14 @@ class Knight
 		valid = true
 		valid = false unless (delta == [1, 2] || delta == [2, 1])
 		valid
+	end
+
+	def get_potential_coordinates(player, opponent)
+		potential_moves = [[1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]]
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
 	end
 end
 
@@ -241,6 +273,14 @@ class Bishop
 		end
 		path.pop
 		path
+	end
+
+	def get_potential_coordinates(player, opponent)
+		potential_moves = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
 	end
 
 	private
@@ -287,6 +327,27 @@ class Pawn
 		end
 		valid = false unless valid_path?(from, to, player.pieces, opponent.pieces)
 		valid
+	end
+
+	def get_potential_coordinates(player, opponent)
+		case
+		when player.id == "Player 1"
+			potential_moves = [[0, 1]]
+			potential_moves.push([1, 1]) if opponent_present([(@location[0] + 1), (@location[1] + 1)], opponent.pieces)
+			potential_moves.push([-1, 1]) if opponent_present([(@location[0] - 1), (@location[1] + 1)], opponent.pieces)
+			potential_moves.push([1, 1]) if opponent_present([(@location[0] + 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
+			potential_moves.push([-1, 1]) if opponent_present([(@location[0] - 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
+		when player.id == "Player 2"
+			potential_moves = [[0, -1]]
+			potential_moves.push([1, -1]) if opponent_present([(@location[0] + 1), (@location[1] - 1)], opponent.pieces)
+			potential_moves.push([-1, -1]) if opponent_present([(@location[0] - 1), (@location[1] - 1)], opponent.pieces)
+			potential_moves.push([1, -1]) if opponent_present([(@location[0] + 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
+			potential_moves.push([-1, -1]) if opponent_present([(@location[0] - 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
+		end
+		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
+		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
+		potential_coordinates = potential_moves.collect { |move| [@location, move] }
+		potential_coordinates
 	end
 
 	private

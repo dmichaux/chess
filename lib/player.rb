@@ -27,6 +27,24 @@ class Player
 		checkmate
 	end
 
+	def in_stalemate?(opponent)
+		return false if king_in_check?(opponent)
+		stalemate = true
+		@pieces.each do |piece|
+			potential_coordinates = piece.get_potential_coordinates(self, opponent)
+			potential_coordinates.each do |coordinate_pair|
+				if valid_move?(coordinate_pair, opponent)
+					start_location = piece.location
+					piece.location = coordinate_pair[1]
+					stalemate = false if !king_in_check?(opponent)
+					piece.location = start_location
+					return false if stalemate == false
+				end
+			end
+		end
+		stalemate
+	end
+
 	private
 
 	def populate_pieces(color)
@@ -196,7 +214,7 @@ class Player
 	end
 
 	def can_king_escape?(king, opponent)
-		potential_coordinates = get_potential_coordinates(king)
+		potential_coordinates = king.get_potential_coordinates(self, opponent)
 		can_escape = false
 		potential_coordinates.each do |coordinate_pair|
 			if valid_move?(coordinate_pair, opponent)
@@ -208,14 +226,6 @@ class Player
 			end
 		end
 		can_escape
-	end
-
-	def get_potential_coordinates(king)
-		potential_moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
-		potential_moves.collect { |move| [(move[0] += king.location[0]), (move[1] += king.location[1])] }
-		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
-		potential_coordinates = potential_moves.collect { |move| [king.location, move] }
-		potential_coordinates
 	end
 
 	def can_capture_threat?(threat, opponent)

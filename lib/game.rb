@@ -115,10 +115,9 @@ class Chess
 	end
 
 	def game_over?(player, opponent)
-		# King in check. No valid moves.
-		# Stalemate
 		over = false
 		over = true if opponent.in_checkmate?(player)
+		over = true if opponent.in_stalemate?(player)
 		over
 	end
 end
