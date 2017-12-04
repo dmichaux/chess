@@ -1,5 +1,6 @@
 12/4/2017
 The game is finished and fully functional - including all rules for castling, pawn promotion, and en passant. A game may be saved on any turn; loading a saved game will begin exactly where it left off, including the correct player turn, accrued player points, and piece details (such as if the piece had previously moved or not). Games may end by checkmate, stalemate, and player resignation.
+To run game: $ruby lib/game.rb
 
 11/4/2017
 This project is a human v human chess game run in the command line.
