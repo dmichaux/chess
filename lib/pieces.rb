@@ -2,12 +2,12 @@ class King
 	attr_accessor :check, :moves_made, :location
 	attr_reader :w_symbol, :b_symbol, :id
 
-	def initialize(id, location)
+	def initialize(location, moves_made=nil)
 		@b_symbol = "♔"
 		@w_symbol = "♚"
 		@check = false
-		@moves_made = 0
-		@id = id
+		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
+		@id = "king"
 		@location = location
 	end
 
@@ -84,11 +84,11 @@ class Queen
 	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(id, location)
+	def initialize(location)
 		@b_symbol = "♕"
 		@w_symbol = "♛"
 		@points = 9
-		@id = id
+		@id = "queen"
 		@location = location
 	end
 
@@ -153,12 +153,12 @@ class Rook
 	attr_accessor :moves_made, :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(id, location)
+	def initialize(location, moves_made = nil)
 		@b_symbol = "♖"
 		@w_symbol = "♜"
-		@moves_made = 0
+		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
 		@points = 5
-		@id = id
+		@id = "rook"
 		@location = location
 	end
 
@@ -213,11 +213,11 @@ class Knight
 	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(id, location)
+	def initialize(location)
 		@b_symbol = "♘"
 		@w_symbol = "♞"
 		@points = 3
-		@id = id
+		@id = "knight"
 		@location = location
 	end
 
@@ -241,11 +241,11 @@ class Bishop
 	attr_accessor :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(id, location)
+	def initialize(location)
 		@b_symbol = "♗"
 		@w_symbol = "♝"
 		@points = 3
-		@id = id
+		@id = "bishop"
 		@location = location
 	end
 
@@ -300,13 +300,13 @@ class Pawn
 	attr_accessor :moves_made, :double_advanced_on_turn, :location
 	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(id, location)
+	def initialize(location, moves_made = nil, advanced_on = nil)
 		@b_symbol = "♙"
 		@w_symbol = "♟"
-		@moves_made = 0
-		@double_advanced_on_turn = 0
+		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
+		advanced_on.nil? ? @double_advanced_on_turn = 0 : @double_advanced_on_turn = advanced_on
 		@points = 1
-		@id = id
+		@id = "pawn"
 		@location = location
 	end
 

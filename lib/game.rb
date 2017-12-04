@@ -34,16 +34,39 @@ class Chess
 		@player1 = Player.new("Player 1", "white")
 		@player2 = Player.new("Player 2", "black")
 		@board = Board.new(@player1, @player2)
-		game_action
+		game_action(1)
 	end
 
 	def load_game
+		puts "\nPlease select a game to load:"
+		saves = Dir.glob("saved_games/*")
+		saves.each { |save| puts save.slice(/\/(\w+)\./, 1) }
+		filename = ""
+		until saves.include?("saved_games/#{filename}.txt")
+			filename = gets.chomp
+			puts "File does not exist. Try again:" unless saves.include?("saved_games/#{filename}.txt")
+		end
+		saved_info_json = File.open("saved_games/#{filename}.txt", "r").readlines
+		saved_info = JSON.parse(saved_info_json[0])
+		@player1 = Player.new("Player 1", "white", saved_info["p1"])
+		@player2 = Player.new("Player 2", "black", saved_info["p2"])
+		@board = Board.new(@player1, @player2)
+		@board.print_board
+		game_action(saved_info["current turn"])
 	end
 
-	def game_action
-		until @game_over
-			player1_turn
-			player2_turn unless @game_over
+	def game_action(current_turn)
+		case 
+		when current_turn == 1
+			until @game_over
+				player1_turn
+				player2_turn unless @game_over
+			end
+		when current_turn == 2
+			until @game_over
+				player2_turn
+				player1_turn unless @game_over
+			end
 		end
 		end_the_game
 	end
