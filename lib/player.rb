@@ -24,7 +24,7 @@ class Player
 		king_in_check?(opponent)
 		move = get_valid_move_coordinates(opponent)
 		return move if move.include?("resign") || move.include?("save")
-		move_piece(move, opponent)
+		move_piece(move)
 		@turn += 1
 		move
 	end
@@ -38,16 +38,11 @@ class Player
 	def in_stalemate?(opponent)
 		return false if king_in_check?(opponent)
 		stalemate = true
-		@pieces.each do |piece|
+		viable_pieces = @pieces.select { |piece| piece.location != [] }
+		viable_pieces.each do |piece|
 			potential_coordinates = piece.get_potential_coordinates(self, opponent)
 			potential_coordinates.each do |coordinate_pair|
-				if valid_move?(coordinate_pair, opponent)
-					start_location = piece.location
-					piece.location = coordinate_pair[1]
-					stalemate = false if !king_in_check?(opponent)
-					piece.location = start_location
-					return false if stalemate == false
-				end
+				return false if valid_move?(coordinate_pair, opponent) && !leaves_king_vulnerable?(coordinate_pair, opponent)
 			end
 		end
 		stalemate
@@ -68,16 +63,8 @@ class Player
 				knight2 = Knight.new([7, 1])
 				rook1 = Rook.new([1, 1])
 				rook2 = Rook.new([8, 1])
-				pawn1 = Pawn.new([1, 2])
-				pawn2 = Pawn.new([2, 2])
-				pawn3 = Pawn.new([3, 2])
-				pawn4 = Pawn.new([4, 2])
-				pawn5 = Pawn.new([5, 2])
-				pawn6 = Pawn.new([6, 2])
-				pawn7 = Pawn.new([7, 2])
-				pawn8 = Pawn.new([8, 2])
-				pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2,
-					pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8]
+				pawns = populate_pawns(2)
+				pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2] + pawns
 			when "black"
 				king = King.new([5, 8])
 				queen = Queen.new([4, 8])
@@ -87,38 +74,22 @@ class Player
 				knight2 = Knight.new([7, 8])
 				rook1 = Rook.new([1, 8])
 				rook2 = Rook.new([8, 8])
-				pawn1 = Pawn.new([1, 7])
-				pawn2 = Pawn.new([2, 7])
-				pawn3 = Pawn.new([3, 7])
-				pawn4 = Pawn.new([4, 7])
-				pawn5 = Pawn.new([5, 7])
-				pawn6 = Pawn.new([6, 7])
-				pawn7 = Pawn.new([7, 7])
-				pawn8 = Pawn.new([8, 7])
-				pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2,
-					pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8]
+				pawns = populate_pawns(7)
+				pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2] + pawns
 			end
 		else # saved != nil
 			promoted = saved[16..-1]
-			king = King.new(saved[0]["location"], saved[0]["moves made"])
+			king = King.new(saved[0]["location"], saved[0]["has moved"])
 			queen = Queen.new(saved[1]["location"])
 			bishop1 = Bishop.new(saved[2]["location"])
 			bishop2 = Bishop.new(saved[3]["location"])
 			knight1 = Knight.new(saved[4]["location"])
 			knight2 = Knight.new(saved[5]["location"])
-			rook1 = Rook.new(saved[6]["location"], saved[6]["moves made"])
-			rook2 = Rook.new(saved[7]["location"], saved[7]["moves made"])
-			pawn1 = Pawn.new(saved[8]["location"], saved[8]["moves made"], saved[8]["advanced on"])
-			pawn2 = Pawn.new(saved[9]["location"], saved[9]["moves made"], saved[9]["advanced on"])
-			pawn3 = Pawn.new(saved[10]["location"], saved[10]["moves made"], saved[10]["advanced on"])
-			pawn4 = Pawn.new(saved[11]["location"], saved[11]["moves made"], saved[11]["advanced on"])
-			pawn5 = Pawn.new(saved[12]["location"], saved[12]["moves made"], saved[12]["advanced on"])
-			pawn6 = Pawn.new(saved[13]["location"], saved[13]["moves made"], saved[13]["advanced on"])
-			pawn7 = Pawn.new(saved[14]["location"], saved[14]["moves made"], saved[14]["advanced on"])
-			pawn8 = Pawn.new(saved[15]["location"], saved[15]["moves made"], saved[15]["advanced on"])
-			pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2,
-				pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8]
-			unless promoted.empty?
+			rook1 = Rook.new(saved[6]["location"], saved[6]["has moved"])
+			rook2 = Rook.new(saved[7]["location"], saved[7]["has moved"])
+			pawns = populate_pawns(nil, saved)
+			pieces = [king, queen, bishop1, bishop2, knight1, knight2, rook1, rook2] + pawns
+			unless promoted == []
 				promoted.each do |piece|
 					case piece["id"]
 					when "queen" then pieces.push(Queen.new(piece["location"]))
@@ -132,11 +103,18 @@ class Player
 		pieces
 	end
 
-	def king_in_check?(opponent)
-		king = ""
-		@pieces.each do |piece|
-			king = piece if piece.id == "king"
+	def populate_pawns(rank, saved = nil)
+		pawns = []
+		if saved.nil?
+			1.upto(8) { |file| pawns.push(Pawn.new([file, rank])) }
+		else
+			1.upto(8) { |n| pawns.push(Pawn.new(saved[7 + n]["location"], saved[7 + n]["has moved"], saved[7 + n]["advanced on"])) }
 		end
+		pawns
+	end
+
+	def king_in_check?(opponent)
+		king = @pieces.find { |piece| piece.id == "king" }
 		king.check = false
 		opponent.pieces.each do |piece|
 			king.check = true if piece.location != [] && piece.can_move_there?(piece.location, king.location, opponent, self)
@@ -147,16 +125,12 @@ class Player
 	def get_valid_move_coordinates(opponent)
 		coordinates = []
 		until valid_move?(coordinates, opponent) && !leaves_king_vulnerable?(coordinates, opponent)
-			move = ""
-			until (/[a-h][1-8] to [a-h][1-8]/.match?(move)) || ["resign", "save"].include?(move)
-				move = gets.chomp.downcase
-				puts "Invalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move) || ["resign", "save"].include?(move)
-			end
+			move = get_move_input
 			return "#{@id} resigns." if move.include?("resign")
 			return "#{@id} saves" if move.include?("save")
 			coordinates = parse_move(move)
 			unless valid_move?(coordinates, opponent) && !leaves_king_vulnerable?(coordinates, opponent)
-				puts "Chess rules do not allow that move. Try again:"
+				puts "\nChess rules do not allow that move. Try again:"
 			end
 		end
 		coordinates
@@ -174,13 +148,32 @@ class Player
 	def leaves_king_vulnerable?(coordinates, opponent)
 		vulnerable = false
 		moving_piece = coordinate_to_piece(coordinates[0])
-		start_location = moving_piece.location
-		moving_piece.location = coordinates[1]
-		if king_in_check?(opponent)
-			vulnerable = true
-		end
-		moving_piece.location = start_location
+		captured_piece = coordinate_to_piece(coordinates[1], opponent.pieces)
+		player_start_location = moving_piece.location
+		captured_start_location = captured_piece.location if captured_piece != nil
+		pretend_move_happens(moving_piece, captured_piece, coordinates[1])
+		vulnerable = true if king_in_check?(opponent)
+		reset_move(moving_piece, captured_piece, player_start_location, captured_start_location)
 		vulnerable
+	end
+
+	def pretend_move_happens(player_piece, opponent_piece, destination)
+		player_piece.location = destination
+		opponent_piece.location = [] if opponent_piece != nil
+	end
+
+	def reset_move(player_piece, opponent_piece, pl_start, op_start)
+		player_piece.location = pl_start
+		opponent_piece.location = op_start if opponent_piece != nil
+	end
+
+	def get_move_input
+		move = ""
+		until (/[a-h][1-8] to [a-h][1-8]/.match?(move)) || ["resign", "save"].include?(move)
+			move = gets.chomp.downcase
+			puts "\nInvalid selection - Try again with correct format:" unless /[a-h][1-8] to [a-h][1-8]/.match?(move) || ["resign", "save"].include?(move)
+		end
+		move
 	end
 
 	def parse_move(move)
@@ -201,31 +194,34 @@ class Player
 		player_piece
 	end
 
-	def coordinate_to_piece(coordinate)
-		@pieces.each do |piece|
-			return piece if coordinate == piece.location
+	def coordinate_to_piece(coordinate, opponent_pieces = nil)
+		selected = []
+		if opponent_pieces.nil?
+			selected = @pieces.find { |piece| piece.location == coordinate }
+		else
+			selected = opponent_pieces.find { |piece| piece.location == coordinate }
 		end
+		selected
 	end
 
-	def move_piece(move, opponent)
+	def move_piece(move)
 		moving_piece = coordinate_to_piece(move[0])
-		start_location = moving_piece.location
 		moving_piece.location = move[1]
-		if moving_piece.id == "king" && (move[1][0] - move[0][0]).abs == 2
+		update_piece(moving_piece, move) if ["king", "rook", "pawn"].include?(moving_piece.id)
+	end
+
+	def update_piece(piece, move)
+		piece.has_moved = true
+		case 
+		when piece.id == "pawn"
+			piece.double_advanced_on_turn = @turn if (move[1][1] - move[0][1]).abs == 2
+			promote_pawn(piece) if piece.location[1] == 1 || piece.location[1] == 8
+		when piece.id == "king" && (move[1][0] - move[0][0]).abs == 2
 			direction = (move[1][0] - move[0][0]) > 0 ? "right" : "left"
-			rook = moving_piece.find_castling_rook(@pieces, direction)
+			rook = piece.find_castling_rook(@pieces, direction)
 			case 
-			when direction == "right" then rook.location[0] = (moving_piece.location[0] - 1)
-			when direction == "left" then rook.location[0] = (moving_piece.location[0] + 1)
-			end
-		end
-		moving_piece.moves_made += 1 if moving_piece.id == "king"
-		moving_piece.moves_made += 1 if moving_piece.id == "rook"
-		if moving_piece.id == "pawn"
-			moving_piece.moves_made += 1
-			moving_piece.double_advanced_on_turn = @turn if (move[1][1] - move[0][1]).abs == 2
-			if (moving_piece.location[1] == 1 || moving_piece.location[1] == 8)
-				promote_pawn(moving_piece)
+			when direction == "right" then rook.location[0] = (piece.location[0] - 1)
+			when direction == "left" then rook.location[0] = (piece.location[0] + 1)
 			end
 		end
 	end
@@ -237,7 +233,7 @@ class Player
 	end
 
 	def promote_to
-		puts "#{@id} may promote the pawn. What piece do you choose?\n[queen, rook, knight, or bishop]"
+		puts "\n#{@id} may promote the pawn. What piece do you choose?\n[queen, rook, knight, or bishop]"
 		choices = ["queen", "rook", "knight", "bishop"]
 		input = ""
 		until choices.include?(input)
@@ -308,8 +304,3 @@ class Player
 		can_block
 	end
 end
-
-		# zero_moves = false if
-		# 1. The king can move out of check
-		# 2. Any piece can capture the threat (except the king if threat is protected - check for check after move)
-		# 3. Any piece can block the threat (note: knight cannot be blocked)

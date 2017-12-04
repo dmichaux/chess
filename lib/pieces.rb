@@ -1,21 +1,34 @@
-class King
-	attr_accessor :check, :moves_made, :location
-	attr_reader :w_symbol, :b_symbol, :id
+module Piece_valid_path
 
-	def initialize(location, moves_made=nil)
+	private	def valid_path?(from, to, player_pieces, opponent_pieces)
+	valid = true
+	path = calculate_path(from, to)
+	obstacles = player_pieces + opponent_pieces
+	obstacles.each do |piece|
+		valid = false if piece.location != [] && path.include?(piece.location)
+	end
+	valid
+	end
+end
+
+class King
+	attr_accessor :location, :has_moved, :check
+	attr_reader :id, :b_symbol, :w_symbol
+
+	def initialize(location, has_moved = nil)
+		@location = location
+		has_moved.nil? ? @has_moved = false : @has_moved = has_moved
+		@id = "king"
+		@check = false
 		@b_symbol = "♔"
 		@w_symbol = "♚"
-		@check = false
-		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
-		@id = "king"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
-		valid = false if ((delta[0] > 1) || (delta[1] > 1))
+		valid = false if delta[0] > 1 || delta[1] > 1
 		valid = true if delta == [2, 0] && can_castle?(from, to, player, opponent)
 		valid
 	end
@@ -25,9 +38,9 @@ class King
 		rook = []
 		case
 		when direction == "right"
-			rooks.each { |piece| rook = piece if piece.location[0] == 8 && piece.moves_made == 0 }
+			rooks.each { |piece| rook = piece if piece.location[0] == 8 && piece.has_moved == false }
 		when direction == "left"
-			rooks.each { |piece| rook = piece if piece.location[0] == 1 && piece.moves_made == 0 }
+			rooks.each { |piece| rook = piece if piece.location[0] == 1 && piece.has_moved == false }
 		end
 		rook
 	end
@@ -45,10 +58,10 @@ class King
 	def can_castle?(from, to, player, opponent)
 		direction = (to[0] - from[0]) > 0 ? "right" : "left"
 		rook = find_castling_rook(player.pieces, direction) 
-		return false if rook.nil?
+		return false if rook == []
 		valid = true
 		valid = false if @check == true
-		valid = false if @moves_made > 0
+		valid = false if @has_moved == true
 		valid = false unless valid_path?(from, rook.location, player, opponent,)
 		valid
 	end
@@ -81,22 +94,25 @@ class King
 end
 
 class Queen
+
+	include Piece_valid_path
+
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :points, :id
+	attr_reader :id, :points, :b_symbol, :w_symbol
 
 	def initialize(location)
+		@location = location
+		@id = "queen"
+		@points = 9
 		@b_symbol = "♕"
 		@w_symbol = "♛"
-		@points = 9
-		@id = "queen"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
-		if ((from[0] != to[0]) && (from[1] != to[1]))
+		if from[0] != to[0] && from[1] != to[1]
 			valid = false unless delta[0] == delta[1]
 		end
 		valid = false unless valid_path?(from, to, player.pieces, opponent.pieces)
@@ -135,38 +151,29 @@ class Queen
 		potential_coordinates = potential_moves.collect { |move| [@location, move] }
 		potential_coordinates
 	end
-
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
 end
 
 class Rook
-	attr_accessor :moves_made, :location
-	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(location, moves_made = nil)
+	include Piece_valid_path
+
+	attr_accessor :location, :has_moved
+	attr_reader :id, :points, :b_symbol, :w_symbol
+
+	def initialize(location, has_moved = nil)
+		@location = location
+		has_moved.nil? ? @has_moved = false : @has_moved = has_moved
+		@id = "rook"
+		@points = 5
 		@b_symbol = "♖"
 		@w_symbol = "♜"
-		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
-		@points = 5
-		@id = "rook"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
 		valid = false if delta == [0, 0]
-		valid = false unless ((from[0] == to[0]) || (from[1] == to[1]))
+		valid = false unless from[0] == to[0] || from[1] == to[1]
 		valid = false unless valid_path?(from, to, player.pieces, opponent.pieces)
 		valid
 	end
@@ -195,36 +202,24 @@ class Rook
 		potential_coordinates = potential_moves.collect { |move| [@location, move] }
 		potential_coordinates
 	end
-
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
 end
 
 class Knight
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :points, :id
+	attr_reader :id, :points, :b_symbol, :w_symbol
 
 	def initialize(location)
+		@location = location
+		@id = "knight"
+		@points = 3
 		@b_symbol = "♘"
 		@w_symbol = "♞"
-		@points = 3
-		@id = "knight"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
 		delta = [(to[0] - from[0]).abs, (to[1] - from[1]).abs]
 		valid = true
-		valid = false unless (delta == [1, 2] || delta == [2, 1])
+		valid = false unless delta == [1, 2] || delta == [2, 1]
 		valid
 	end
 
@@ -238,15 +233,18 @@ class Knight
 end
 
 class Bishop
+
+	include Piece_valid_path
+
 	attr_accessor :location
-	attr_reader :w_symbol, :b_symbol, :points, :id
+	attr_reader :id, :points, :b_symbol, :w_symbol
 
 	def initialize(location)
+		@location = location
+		@id = "bishop"
+		@points = 3
 		@b_symbol = "♗"
 		@w_symbol = "♝"
-		@points = 3
-		@id = "bishop"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
@@ -282,32 +280,23 @@ class Bishop
 		potential_coordinates = potential_moves.collect { |move| [@location, move] }
 		potential_coordinates
 	end
-
-	private
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if path.include?(piece.location)
-		end
-		valid
-	end
 end
 
 class Pawn
-	attr_accessor :moves_made, :double_advanced_on_turn, :location
-	attr_reader :w_symbol, :b_symbol, :points, :id
 
-	def initialize(location, moves_made = nil, advanced_on = nil)
+	include Piece_valid_path
+
+	attr_accessor :location, :has_moved, :double_advanced_on_turn
+	attr_reader :id, :points, :b_symbol, :w_symbol
+
+	def initialize(location, has_moved = nil, advanced_on = nil)
+		@location = location
+		has_moved.nil? ? @has_moved = false : @has_moved = has_moved
+		advanced_on.nil? ? @double_advanced_on_turn = 0 : @double_advanced_on_turn = advanced_on
+		@id = "pawn"
+		@points = 1
 		@b_symbol = "♙"
 		@w_symbol = "♟"
-		moves_made.nil? ? @moves_made = 0 : @moves_made = moves_made
-		advanced_on.nil? ? @double_advanced_on_turn = 0 : @double_advanced_on_turn = advanced_on
-		@points = 1
-		@id = "pawn"
-		@location = location
 	end
 
 	def can_move_there?(from, to, player, opponent)
@@ -316,12 +305,12 @@ class Pawn
 		case
 		when player.id == "Player 1"
 			valid = false unless travel == [0, 1]
-			valid = true if travel == [0, 2] && @moves_made == 0
+			valid = true if travel == [0, 2] && @has_moved == false
 			valid = true if (travel == [-1, 1] && opponent_present?(to, opponent.pieces)) || (travel == [1, 1] && opponent_present?(to, opponent.pieces))
 			valid = true if (travel == [-1, 1] && can_en_passant?(from, player, opponent.pieces)) || (travel == [1, 1] && can_en_passant?(from, player, opponent.pieces))
 		when player.id == "Player 2"
 			valid = false unless travel == [0, -1]
-			valid = true if travel == [0, -2] && @moves_made == 0
+			valid = true if travel == [0, -2] && @has_moved == false
 			valid = true if (travel == [-1, -1] && opponent_present?(to, opponent.pieces)) || (travel == [1, -1] && opponent_present?(to, opponent.pieces))
 			valid = true if (travel == [-1, -1] && can_en_passant?(from, player, opponent.pieces)) || (travel == [1, -1] && can_en_passant?(from, player, opponent.pieces))
 		end
@@ -341,8 +330,8 @@ class Pawn
 			potential_moves = [[0, -1]]
 			potential_moves.push([1, -1]) if opponent_present([(@location[0] + 1), (@location[1] - 1)], opponent.pieces)
 			potential_moves.push([-1, -1]) if opponent_present([(@location[0] - 1), (@location[1] - 1)], opponent.pieces)
-			potential_moves.push([1, -1]) if opponent_present([(@location[0] + 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
-			potential_moves.push([-1, -1]) if opponent_present([(@location[0] - 1), (@location[1])], opponent.pieces) && can_en_passant(@location, player, opponent.pieces)
+			potential_moves.push([1, -1]) if opponent_present([(@location[0] + 1), (@location[1])], opponent.pieces) && can_en_passant?(@location, player, opponent.pieces)
+			potential_moves.push([-1, -1]) if opponent_present([(@location[0] - 1), (@location[1])], opponent.pieces) && can_en_passant?(@location, player, opponent.pieces)
 		end
 		potential_moves.collect { |move| [(move[0] += @location[0]), (move[1] += @location[1])] }
 		potential_moves.select! { |move| move[0].between?(1, 8) && move[1].between?(1, 8) }
@@ -364,16 +353,6 @@ class Pawn
 			valid = false unless from[1] == 4
 			victim_pawn = opponent_pawns.find { |pawn| pawn.double_advanced_on_turn == player.turn && (pawn.location == [(from[0] + 1), 5] || pawn.location == [(from[0] - 1), 4]) }
 			valid = false if victim_pawn.nil?
-		end
-		valid
-	end
-
-	def valid_path?(from, to, player_pieces, opponent_pieces)
-		valid = true
-		path = calculate_path(from, to)
-		obstacles = player_pieces + opponent_pieces
-		obstacles.each do |piece|
-			valid = false if piece.location != [] && path.include?(piece.location)
 		end
 		valid
 	end

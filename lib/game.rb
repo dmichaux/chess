@@ -22,88 +22,92 @@ class Chess
 
 	def get_input
 		input = ""
-		until (input == 1 || input == 2)
+		until input == 1 || input == 2
 			input = gets.chomp.to_i
-			puts "Invalid selection. Please try again:" unless (input == 1 || input == 2)
+			puts "Invalid selection. Please try again:" unless input == 1 || input == 2
 		end
 		input
 	end
 
 	def new_game
 		puts "\nNew game!\n"
-		@player1 = Player.new("Player 1", "white")
-		@player2 = Player.new("Player 2", "black")
-		@board = Board.new(@player1, @player2)
+		create_game
 		game_action(1)
 	end
 
-	def load_game
-		puts "\nPlease select a game to load:"
-		saves = Dir.glob("saved_games/*")
-		saves.each { |save| puts save.slice(/\/(\w+)\./, 1) }
-		filename = ""
-		until saves.include?("saved_games/#{filename}.txt")
-			filename = gets.chomp
-			puts "File does not exist. Try again:" unless saves.include?("saved_games/#{filename}.txt")
+	def create_game(file_data = nil)
+		if file_data.nil?
+			@player1 = Player.new("Player 1", "white")
+			@player2 = Player.new("Player 2", "black")
+		else
+			@player1 = Player.new("Player 1", "white", file_data["p1"])
+			@player2 = Player.new("Player 2", "black", file_data["p2"])
 		end
-		saved_info_json = File.open("saved_games/#{filename}.txt", "r").readlines
-		saved_info = JSON.parse(saved_info_json[0])
-		@player1 = Player.new("Player 1", "white", saved_info["p1"])
-		@player2 = Player.new("Player 2", "black", saved_info["p2"])
 		@board = Board.new(@player1, @player2)
-		@board.print_board
-		game_action(saved_info["current turn"])
+	end
+
+	def load_game
+		filename = select_a_file
+		file_data = read_file(filename)
+		create_game(file_data)
+		game_action(file_data["current turn"])
+	end
+
+	def select_a_file
+		puts "\nPlease select a game to load:"
+		files = Dir.glob("saved_games/*")
+		files.each { |file| puts file.slice(/\/(\w+)\./, 1) }
+		filename = ""
+		until files.include?("saved_games/#{filename}.txt")
+			filename = gets.chomp
+			puts "File does not exist. Try again:" unless files.include?("saved_games/#{filename}.txt")
+		end
+		filename
+	end
+
+	def read_file(filename)
+		file_info_json = File.open("saved_games/#{filename}.txt", "r").readlines
+		file_info = JSON.parse(file_info_json[0])
+		file_info
 	end
 
 	def game_action(current_turn)
 		case 
 		when current_turn == 1
 			until @game_over
-				player1_turn
-				player2_turn unless @game_over
+				turn(@player1, @player2)
+				turn(@player2, @player1) unless @game_over
+				# player1_turn
+				# player2_turn unless @game_over
 			end
 		when current_turn == 2
 			until @game_over
-				player2_turn
-				player1_turn unless @game_over
+				turn(@player2, @player1)
+				turn(@player1, @player2) unless @game_over
+				# player2_turn
+				# player1_turn unless @game_over
 			end
 		end
 		end_the_game
 	end
 
-	def player1_turn
+	def turn(player, opponent)
 		@board.print_board
-		move = @player1.take_turn(@player2)
+		move = player.take_turn(opponent)
 		if move.include?("resign")
-			puts move
+			puts "\n#{move}"
 			@game_over = true
 		elsif move.include?("save")
 			save_game(move)
 		else
-			resolve_en_passant(move, @player1, @player2.pieces, "black") if en_passant_in_progress?(move, @player1.pieces) && piece_conflict? == false
-			resolve_piece_capture(@player1, @player2.pieces, "black") if piece_conflict?
+			resolve_en_passant(move, player, opponent.pieces, opponent.id) if en_passant_in_progress?(move, player.pieces) && piece_conflict? == false
+			resolve_piece_capture(player, opponent.pieces, opponent.id) if piece_conflict?
 			@board.update_board(@player1, @player2)
 			@game_over = true if game_over?(@player1, @player2)
 		end
 	end
 
-	def player2_turn
-		@board.print_board
-		move = @player2.take_turn(@player1)
-		if move.include?("resign")
-			puts move
-			@game_over = true
-		elsif move.include?("save")
-				save_game(move)
-		else
-			resolve_en_passant(move, @player2, @player1.pieces, "white") if en_passant_in_progress?(move, @player2.pieces) && piece_conflict? == false
-			resolve_piece_capture(@player2, @player1.pieces, "white") if piece_conflict?
-			@board.update_board(@player1, @player2)
-			@game_over = true if game_over?(@player2, @player1)
-		end
-	end
-
-	def resolve_piece_capture(player, opponent_pieces, opponent_color)
+	def resolve_piece_capture(player, opponent_pieces, opponent_id)
 		captured_piece = ""
 		player.pieces.each do |player_piece|
 			opponent_pieces.each do |opponent_piece|
@@ -111,14 +115,14 @@ class Chess
 			end
 		end
 		captured_piece.location = []
-		add_to_score(player, captured_piece, opponent_color)
+		add_to_score(player, captured_piece, opponent_id)
 	end
 
-	def add_to_score(player, captured_piece, opponent_color)
+	def add_to_score(player, captured_piece, opponent_id)
 		player.points += captured_piece.points
-		case opponent_color
-		when "white" then player.captured_pieces += "#{captured_piece.w_symbol} "
-		when "black" then player.captured_pieces += "#{captured_piece.b_symbol} "
+		case opponent_id
+		when "Player 1" then player.captured_pieces += "#{captured_piece.w_symbol} "
+		when "Player 2" then player.captured_pieces += "#{captured_piece.b_symbol} "
 		end
 	end
 
@@ -132,14 +136,13 @@ class Chess
 		conflict
 	end
 
-	def resolve_en_passant(move, player, opponent_pieces, opponent_color)
+	def resolve_en_passant(move, player, opponent_pieces, opponent_id)
 		captured_pawn = opponent_pieces.find { |piece| (piece.location == [move[1][0], (move[1][1] + 1)] || piece.location == [move[1][0], (move[1][1] - 1)]) }
 		captured_pawn.location = []
-		add_to_score(player, captured_pawn, opponent_color)
+		add_to_score(player, captured_pawn, opponent_id)
 	end
 
 	def en_passant_in_progress?(move, player_pieces)
-		# pawn moved diagonal without conflict at destination square
 		delta = [(move[1][0] - move[0][0]).abs, (move[1][1] - move[0][1]).abs]
 		in_progress = false
 		pawn = player_pieces.find { |piece| piece.id == "pawn" && piece.location == move[1] }
@@ -149,7 +152,7 @@ class Chess
 	end
 
 	def end_the_game
-		puts "Good game! All pieces go back in the box."
+		puts "Good game. All pieces go back in the box!"
 	end
 
 	def game_over?(player, opponent)
@@ -170,7 +173,7 @@ class Chess
 	end
 
 	def get_filename
-		puts "Please choose a name for your saved game:\n[1 to 10 alpha-numeric characters]"
+		puts "\nPlease choose a name for your saved game:\n[1 to 10 alpha-numeric characters]"
 		filename = ""
 		until /\w{1,10}/.match?(filename)
 			filename = gets.chomp
@@ -198,9 +201,9 @@ class Chess
 		populated_pieces = []
 		player_pieces.each do |piece|
 			if ["king", "rook"].include?(piece.id)
-				populated_pieces.push({"id" => piece.id, "location" => piece.location, "moves made" => piece.moves_made})
+				populated_pieces.push({"id" => piece.id, "location" => piece.location, "has moved" => piece.has_moved})
 			elsif piece.id == "pawn"
-				populated_pieces.push({"id" => piece.id, "location" => piece.location, "moves made" => piece.moves_made, "advanced on" => piece.double_advanced_on_turn})
+				populated_pieces.push({"id" => piece.id, "location" => piece.location, "has moved" => piece.has_moved, "advanced on" => piece.double_advanced_on_turn})
 			else
 				populated_pieces.push({"id" => piece.id, "location" => piece.location})
 			end
@@ -208,10 +211,5 @@ class Chess
 		populated_pieces
 	end
 end
-
-		# @pieces = populate_pieces(color)
-		# @turn = 1
-		# @points = 0
-		# @captured_pieces = ""
 
 game = Chess.new

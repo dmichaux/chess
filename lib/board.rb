@@ -4,28 +4,25 @@ class Board
 		@squares = populate_squares
 		@p1 = player1
 		@p2 = player2
-
 	end
 
 	def print_board
 		squares = place_pieces_on_squares
-		puts "\n  -a---b---c---d---e---f---g---h-"
-		puts "8| #{squares[[1, 8]]} | #{squares[[2, 8]]} | #{squares[[3, 8]]} | #{squares[[4, 8]]} | #{squares[[5, 8]]} | #{squares[[6, 8]]} | #{squares[[7, 8]]} | #{squares[[8, 8]]} |8 P2 Points: #{@p2.points}"
-		puts " |---|---|---|---|---|---|---|---|  #{@p2.captured_pieces}"
-		puts "7| #{squares[[1, 7]]} | #{squares[[2, 7]]} | #{squares[[3, 7]]} | #{squares[[4, 7]]} | #{squares[[5, 7]]} | #{squares[[6, 7]]} | #{squares[[7, 7]]} | #{squares[[8, 7]]} |7"
-		puts " |---|---|---|---|---|---|---|---|"
-		puts "6| #{squares[[1, 6]]} | #{squares[[2, 6]]} | #{squares[[3, 6]]} | #{squares[[4, 6]]} | #{squares[[5, 6]]} | #{squares[[6, 6]]} | #{squares[[7, 6]]} | #{squares[[8, 6]]} |6"
-		puts " |---|---|---|---|---|---|---|---|"
-		puts "5| #{squares[[1, 5]]} | #{squares[[2, 5]]} | #{squares[[3, 5]]} | #{squares[[4, 5]]} | #{squares[[5, 5]]} | #{squares[[6, 5]]} | #{squares[[7, 5]]} | #{squares[[8, 5]]} |5"
-		puts " |---|---|---|---|---|---|---|---|"
-		puts "4| #{squares[[1, 4]]} | #{squares[[2, 4]]} | #{squares[[3, 4]]} | #{squares[[4, 4]]} | #{squares[[5, 4]]} | #{squares[[6, 4]]} | #{squares[[7, 4]]} | #{squares[[8, 4]]} |4"
-		puts " |---|---|---|---|---|---|---|---|"
-		puts "3| #{squares[[1, 3]]} | #{squares[[2, 3]]} | #{squares[[3, 3]]} | #{squares[[4, 3]]} | #{squares[[5, 3]]} | #{squares[[6, 3]]} | #{squares[[7, 3]]} | #{squares[[8, 3]]} |3"
-		puts " |---|---|---|---|---|---|---|---|"
-		puts "2| #{squares[[1, 2]]} | #{squares[[2, 2]]} | #{squares[[3, 2]]} | #{squares[[4, 2]]} | #{squares[[5, 2]]} | #{squares[[6, 2]]} | #{squares[[7, 2]]} | #{squares[[8, 2]]} |2"
-		puts " |---|---|---|---|---|---|---|---|  #{@p1.captured_pieces}"
-		puts "1| #{squares[[1, 1]]} | #{squares[[2, 1]]} | #{squares[[3, 1]]} | #{squares[[4, 1]]} | #{squares[[5, 1]]} | #{squares[[6, 1]]} | #{squares[[7, 1]]} | #{squares[[8, 1]]} |1 P1 Points: #{@p1.points}"
-		puts "  -a---b---c---d---e---f---g---h-\n\n"
+		x_axis = "  -a---b---c---d---e---f---g---h-"
+		puts "\n#{x_axis}"
+		8.downto(1) do |y|
+			print "#{y}|"
+			1.upto(8)  { |x| print " #{squares[[x, y]]} |" }
+			print "#{y}"
+			print " P2 points: #{@p2.points}" if y == 8
+			print " P1 points: #{@p1.points}" if y == 1
+			print "\n"
+			print " |---|---|---|---|---|---|---|---|" unless y == 1
+			print "  #{@p2.captured_pieces}" if y == 8
+			print "  #{@p1.captured_pieces}" if y == 2
+			print "\n" unless y == 1
+		end
+		puts "#{x_axis}\n\n"
 	end
 
 	def update_board(player1, player2)
